@@ -6,8 +6,17 @@ require("dotenv").config();
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors());
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: ["https://kushagar.online"],  // ✅ tera frontend domain
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
+
+
+// 📩 Contact form route
 app.post("/send", async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -37,6 +46,7 @@ app.post("/send", async (req, res) => {
   }
 });
 
+// 🚀 Dynamic Port (important for Render)
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);
