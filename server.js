@@ -6,30 +6,27 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// ✅ CORS Configuration — allows both local & live frontend
+// ✅ Allow localhost + live domains (with and without www)
 const ALLOWED_ORIGINS = [
   "http://127.0.0.1:5500",
   "http://localhost:5500",
   "https://kushagar.online",
+  "https://www.kushagar.online"
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like Postman)
-      if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS"));
-      }
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);              // allow Postman/curl
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
     },
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ✅ Handle preflight OPTIONS requests
+// ✅ Preflight
 app.options("/send", cors());
 app.options("*", (req, res) => {
   res.set({
@@ -39,6 +36,7 @@ app.options("*", (req, res) => {
   });
   res.sendStatus(204);
 });
+
 
 // ✅ Health check (for Render uptime monitoring)
 app.get("/", (req, res) => {
